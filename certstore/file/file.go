@@ -67,6 +67,9 @@ func (s *Store) GetCert(id string) (*[]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read certificate: %s", err)
 	}
+	if len(b) == 0 {
+		return nil, fmt.Errorf("empty certificate: %s", err)
+	}
 	block, _ := pem.Decode(b)
 	return &block.Bytes, nil
 }
@@ -98,7 +101,7 @@ func (s *Store) AddCert(raw *[]byte) error {
 	if err != nil {
 		return fmt.Errorf("could not create certificate file: %s", err)
 	}
-	f.Close()
+	defer f.Close()
 	// encode certificate
 	err = pem.Encode(f, &pem.Block{Type: "CERTIFICATE", Bytes: *raw})
 	if err != nil {

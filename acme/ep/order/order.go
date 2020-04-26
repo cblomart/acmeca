@@ -55,7 +55,6 @@ func Post(c *gin.Context) {
 		if order != nil {
 			// send the response
 			log.Infof("returning order from id")
-			log.Infof("oreder %s", order.String())
 			c.Header("Link", fmt.Sprintf("<%s%s>;rel=\"index\"", url, ep.DirectoryPath))
 			c.JSON(http.StatusOK, order)
 			return
