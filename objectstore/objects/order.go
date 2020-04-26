@@ -20,8 +20,8 @@ type Identifier struct {
 
 // Order reprensets an order from a client
 type Order struct {
-	ID             string           `json:"-"`
-	KeyID          string           `json:"-"`
+	ID             string           `json:"-" xorm:"id"`
+	KeyID          string           `json:"-" xorm:"keyid"`
 	Status         string           `json:"status"`
 	Expires        *time.Time       `json:"expires,omitempty"`
 	Identitifers   []Identifier     `json:"identifiers"`

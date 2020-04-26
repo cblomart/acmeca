@@ -76,7 +76,7 @@ func Server(v *cli.Context) error {
 		if err != nil {
 			return fmt.Errorf("Cannot create requested nonce storage: %s", err)
 		}
-		os, err := objectstore.Factory(v.String("objectstorage"), nil)
+		os, err := objectstore.Factory(v.String("objectstorage"), GetOpts(v.String("objectstorageopts")))
 		if err != nil {
 			return fmt.Errorf("Cannot create requested object storage: %s", err)
 		}

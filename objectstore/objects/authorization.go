@@ -15,8 +15,8 @@ const (
 
 // Authorization represent an authorization and its challenges
 type Authorization struct {
-	ID         string      `json:"-"`
-	KeyID      string      `json:"-"`
+	ID         string      `json:"-" xorm:"id"`
+	KeyID      string      `json:"-" xorm:"keyid"`
 	Identifier Identifier  `json:"Identifier"`
 	Status     string      `json:"status"`
 	Expires    time.Time   `json:"expires"`

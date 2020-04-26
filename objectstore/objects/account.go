@@ -2,11 +2,11 @@ package objects
 
 // Account represents users accountsS
 type Account struct {
-	KeyID                string   `json:"-",xorm:"index"`
+	KeyID                string   `json:"-" xorm:"keyid"`
 	Key                  string   `json:"-"`
 	Status               string   `json:"status"`
 	Contact              []string `json:"contact"`
-	TermsOfServiceAgreed bool     `json:"termsOfServiceAgreed"`
+	TermsOfServiceAgreed bool     `json:"termsOfServiceAgreed" xorm:"tos"`
 	Orders               string   `json:"orders"`
 }
 

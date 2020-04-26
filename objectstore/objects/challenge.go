@@ -20,9 +20,9 @@ const (
 
 // Challenge represents a challenge from the provider
 type Challenge struct {
-	ID        string           `json:"-"`
+	ID        string           `json:"-" xorm:"id"`
 	Type      string           `json:"type"`
-	URL       string           `json:"url"`
+	URL       string           `json:"url" xorm:"url"`
 	Status    string           `json:"status"`
 	Validated *time.Time       `json:"validated,omitempty"`
 	Error     *problem.Problem `json:"error,omitempty"`

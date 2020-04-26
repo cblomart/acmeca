@@ -54,6 +54,12 @@ func main() {
 				EnvVars: []string{"OBJECT_STORAGE"},
 			},
 			&cli.StringFlag{
+				Name:    "objectstorageopts",
+				Value:   "",
+				Usage:   "Object storage options (key1=value1;key2=value2;...)",
+				EnvVars: []string{"OBJECT_STORAGE_OPTS"},
+			},
+			&cli.StringFlag{
 				Name:    "certstorage",
 				Value:   "memory",
 				Usage:   "certificate storage type to use",
@@ -62,7 +68,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "certstorageopts",
 				Value:   "",
-				Usage:   "certificate storage options (key1:value1,key2:value2,...)",
+				Usage:   "certificate storage options (key1=value1;key2=value2...)",
 				EnvVars: []string{"CERT_STORAGE_OPTS"},
 			},
 			&cli.StringFlag{
