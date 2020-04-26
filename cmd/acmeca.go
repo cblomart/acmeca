@@ -60,6 +60,12 @@ func main() {
 				EnvVars: []string{"CERT_STORAGE"},
 			},
 			&cli.StringFlag{
+				Name:    "certstorageopts",
+				Value:   "",
+				Usage:   "certificate storage options (key1:value1,key2:value2,...)",
+				EnvVars: []string{"CERT_STORAGE_OPTS"},
+			},
+			&cli.StringFlag{
 				Name:    "domains",
 				Value:   ".local",
 				Usage:   "allowed top level domains",

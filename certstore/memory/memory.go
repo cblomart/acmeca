@@ -20,6 +20,11 @@ func (s *Store) Type() string {
 	return "memory"
 }
 
+// Init initalize the memory store
+func (s *Store) Init(opts map[string]string) error {
+	return nil
+}
+
 // GetCA gets the CA certificate
 func (s *Store) GetCA() *x509.Certificate {
 	return &s.CA

@@ -4,21 +4,47 @@ import (
 	"crypto/md5"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
+	"encoding/pem"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Store represent a storage of certificates
 type Store struct {
-	Path    string
+	path    string
 	CA      x509.Certificate
-	certs   []x509.Certificate
 	certmux sync.Mutex
 }
 
 // Type returns the storage type
 func (s *Store) Type() string {
-	return "memory"
+	return "file"
+}
+
+// Init initalize the store
+func (s *Store) Init(opts map[string]string) error {
+	infos, _ := json.Marshal(opts)
+	log.Infof("Init file cert store with opts: %s", infos)
+	s.path = "/etc/acmeca/certs"
+	if p, ok := opts["path"]; ok {
+		s.path = strings.TrimRight(p, "/")
+		log.Infof("set path from options: %s", s.path)
+	}
+	// check if destination exists
+	if _, err := os.Stat(s.path); os.IsNotExist(err) {
+		// try to create folder
+		err := os.MkdirAll(s.path, 0770)
+		if err != nil {
+			return fmt.Errorf("cannot create certificate store: %s", s.path)
+		}
+	}
+	return nil
 }
 
 // GetCA gets the CA certificate
@@ -28,46 +54,55 @@ func (s *Store) GetCA() *x509.Certificate {
 
 // GetCert gets a certificate
 func (s *Store) GetCert(id string) (*[]byte, error) {
+	// path to read
+	path := fmt.Sprintf("%s/%s.crt", s.path, id)
+	// lock cert directory
 	s.certmux.Lock()
 	defer s.certmux.Unlock()
-	for _, cert := range s.certs {
-		hash := md5.Sum(cert.Raw)
-		sign := base64.RawURLEncoding.EncodeToString(hash[:])
-		if sign == id {
-			return &cert.Raw, nil
-		}
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, fmt.Errorf("certificate does not exist: %s", s.path)
 	}
-	return nil, fmt.Errorf("Certificate not found: %s", id)
+	// read cert file
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read certificate: %s", err)
+	}
+	block, _ := pem.Decode(b)
+	return &block.Bytes, nil
 }
 
 // DelCert deletes a certificate
 func (s *Store) DelCert(id string) error {
+	// path to read
+	path := fmt.Sprintf("%s/%s.crt", s.path, id)
+	// lock cert directory
 	s.certmux.Lock()
 	defer s.certmux.Unlock()
-	found := -1
-	for i, cert := range s.certs {
-		hash := md5.Sum(cert.Raw)
-		sign := base64.RawURLEncoding.EncodeToString(hash[:])
-		if sign == id {
-			found = i
-		}
+	err := os.Remove(path)
+	if err != nil {
+		return fmt.Errorf("cannot delete certificate: %s", err)
 	}
-	if found < 0 {
-		return fmt.Errorf("Certificate not found: %s", id)
-	}
-	s.certs[found] = s.certs[len(s.certs)-1]
-	s.certs = s.certs[:len(s.certs)-1]
 	return nil
 }
 
 // AddCert adds a certicate
 func (s *Store) AddCert(raw *[]byte) error {
-	cert, err := x509.ParseCertificate(*raw)
-	if err != nil {
-		return fmt.Errorf("cannot parse cert: %s", err)
-	}
+	// get the hash of the cert
+	hash := md5.Sum(*raw)
+	thumbprint := base64.RawURLEncoding.EncodeToString(hash[:])
+	// lock folder
 	s.certmux.Lock()
 	defer s.certmux.Unlock()
-	s.certs = append(s.certs, *cert)
+	// create cert file
+	f, err := os.Create(fmt.Sprintf("%s/%s.crt", s.path, thumbprint))
+	if err != nil {
+		return fmt.Errorf("could not create certificate file: %s", err)
+	}
+	f.Close()
+	// encode certificate
+	err = pem.Encode(f, &pem.Block{Type: "CERTIFICATE", Bytes: *raw})
+	if err != nil {
+		return fmt.Errorf("could not create certificate file: %s", err)
+	}
 	return nil
 }

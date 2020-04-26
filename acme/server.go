@@ -121,8 +121,8 @@ func Server(v *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		// certiface store (can be used by both)
-		cs, err := certstore.Factory(v.String("certstorage"), crt, nil)
+		// certiface store
+		cs, err := certstore.Factory(v.String("certstorage"), crt, GetOpts(v.String("certstorageopts")))
 		if err != nil {
 			return fmt.Errorf("Cannot create requested cerft storage: %s", err)
 		}
