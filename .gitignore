@@ -1,0 +1,5 @@
+*.exe
+*.crt
+*.pem
+*.key
+certs
