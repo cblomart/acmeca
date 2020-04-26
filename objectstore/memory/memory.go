@@ -22,3 +22,8 @@ type Store struct {
 func (s *Store) Type() string {
 	return "memory"
 }
+
+// Init initializes a memory storage
+func (s *Store) Init(opts map[string]string) error {
+	return nil
+}

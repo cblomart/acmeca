@@ -31,7 +31,7 @@ func (s *Store) Type() string {
 func (s *Store) Init(opts map[string]string) error {
 	infos, _ := json.Marshal(opts)
 	log.Infof("Init file cert store with opts: %s", infos)
-	s.path = "/etc/acmeca/certs"
+	s.path = "/var/acmeca/certs"
 	if p, ok := opts["path"]; ok {
 		s.path = strings.TrimRight(p, "/")
 		log.Infof("set path from options: %s", s.path)

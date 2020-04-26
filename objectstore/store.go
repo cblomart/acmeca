@@ -5,6 +5,7 @@ import (
 
 	"github.com/cblomart/ACMECA/objectstore/memory"
 	"github.com/cblomart/ACMECA/objectstore/objects"
+	"github.com/cblomart/ACMECA/objectstore/xorm"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -12,12 +13,15 @@ import (
 const (
 	// MemoryStore stores ACME objects in memory
 	MemoryStore = "memory"
+	// XormStore stores ACME objects in database
+	XormStore = "xorm"
 )
 
 // ObjectStore is the interface for storage
 type ObjectStore interface {
 	// Generic information
 	Type() string
+	Init(opts map[string]string) error
 
 	// Account management
 
@@ -63,11 +67,19 @@ type ObjectStore interface {
 
 // Factory creates a store in function of its type
 func Factory(storeType string, args map[string]string) (ObjectStore, error) {
+	var store ObjectStore
 	switch storeType {
 	case MemoryStore:
-		return &memory.Store{}, nil
+		store = &memory.Store{}
+	case XormStore:
+		store = &xorm.Store{}
 	default:
 		log.Errorf("unknown object store type requested: %s", storeType)
 		return nil, fmt.Errorf("unknown object store type requested: %s", storeType)
 	}
+	err := store.Init(args)
+	if err != nil {
+		return nil, fmt.Errorf("could not init xorm storage: %s", err)
+	}
+	return store, nil
 }
