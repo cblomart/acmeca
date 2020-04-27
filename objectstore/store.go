@@ -43,11 +43,11 @@ type ObjectStore interface {
 	// CreateOrder creates an order
 	CreateOrder(order *objects.Order, authzURL string, challengeURL string, finalizeURL string) (rejected error, unsupported error, other error)
 	// GetOrder gets an order
-	GetOrder(id string) (*objects.Order, error)
+	GetOrder(id string, authzPath string) (*objects.Order, error)
 	// GetOrderByAccount gets orders from an account
-	GetOrderByAccount(id string) ([]*objects.Order, error)
+	GetOrderByAccount(id string) ([]objects.Order, error)
 	// GetOrderByAuthorization gets an order from an authorization
-	GetOrderByAuthorization(id string) ([]*objects.Order, error)
+	GetOrderByAuthorization(id string) ([]objects.Order, error)
 	// InvalidateOrder invalidates an order
 	InvalidateOrder(id string) error
 	// ReadyOrder makes an order ready

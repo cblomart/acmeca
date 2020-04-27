@@ -41,7 +41,7 @@ func (s *Store) createAuthorizations(order *objects.Order, authzURL string, chal
 		return err
 	}
 	// save authorizations
-	s.authzs = append(s.authzs, *authz...)
+	s.authzs = append(s.authzs, authz...)
 	return nil
 }
 
@@ -59,7 +59,7 @@ func (s *Store) getOrder(id string) int {
 }
 
 // GetOrder gets an order
-func (s *Store) GetOrder(id string) (*objects.Order, error) {
+func (s *Store) GetOrder(id string, authzPath string) (*objects.Order, error) {
 	i := s.getOrder(id)
 	if i >= 0 {
 		return &s.orders[i], nil
@@ -68,13 +68,13 @@ func (s *Store) GetOrder(id string) (*objects.Order, error) {
 }
 
 // GetOrderByAccount gets orders from an account
-func (s *Store) GetOrderByAccount(id string) ([]*objects.Order, error) {
-	orders := make([]*objects.Order, 0)
+func (s *Store) GetOrderByAccount(id string) ([]objects.Order, error) {
+	orders := make([]objects.Order, 0)
 	s.ordmux.Lock()
 	defer s.ordmux.Unlock()
 	for _, o := range s.orders {
 		if o.KeyID == id {
-			orders = append(orders, &o)
+			orders = append(orders, o)
 		}
 	}
 	return orders, nil
@@ -87,9 +87,9 @@ func (s *Store) UpdateOrder(order *objects.Order) error {
 }
 
 // GetOrderByAuthorization gets an order from an authorization
-func (s *Store) GetOrderByAuthorization(id string) ([]*objects.Order, error) {
+func (s *Store) GetOrderByAuthorization(id string) ([]objects.Order, error) {
 	// create list of orders
-	orders := make([]*objects.Order, 0)
+	orders := make([]objects.Order, 0)
 	// parse each order
 	s.ordmux.Lock()
 	defer s.ordmux.Unlock()
@@ -97,7 +97,7 @@ func (s *Store) GetOrderByAuthorization(id string) ([]*objects.Order, error) {
 		// parse authorizations in order
 		for _, a := range o.Authorizations {
 			if strings.HasSuffix(a, fmt.Sprintf("/%s", id)) {
-				orders = append(orders, &o)
+				orders = append(orders, o)
 			}
 		}
 	}

@@ -103,8 +103,16 @@ func Post(c *gin.Context) {
 			c.JSON(http.StatusOK, existing)
 			return
 		}
+		log.Infof("updating account %s", kid)
 		reqAccount.KeyID = existing.KeyID
 		reqAccount.Key = existing.Key
+		if len(reqAccount.Status) == 0 {
+			reqAccount.Status = existing.Status
+		}
+		if len(reqAccount.Contact) == 0 {
+			reqAccount.Contact = existing.Contact
+		}
+		reqAccount.TermsOfServiceAgreed = existing.TermsOfServiceAgreed
 		updated, err := store.UpdateAccount(reqAccount.ToAccount())
 		if err != nil {
 			log.Errorf("cannot update account %s: %s", reqAccount.KeyID, err)

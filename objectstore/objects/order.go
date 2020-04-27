@@ -14,21 +14,22 @@ import (
 
 // Identifier is the identifier that the client wants to certify
 type Identifier struct {
+	ID    int64  `json:"-" xorm:"id pk autoincr notnull"`
 	Type  string `json:"type"`
 	Value string `json:"value"`
 }
 
 // Order reprensets an order from a client
 type Order struct {
-	ID             string           `json:"-" xorm:"id"`
-	KeyID          string           `json:"-" xorm:"keyid"`
-	Status         string           `json:"status"`
+	ID             string           `json:"-" xorm:"id pk"`
+	KeyID          string           `json:"-" xorm:"keyid index"`
+	Status         string           `json:"status" xorm:"index"`
 	Expires        *time.Time       `json:"expires,omitempty"`
-	Identitifers   []Identifier     `json:"identifiers"`
+	Identitifers   []Identifier     `json:"identifiers" xorm:"-"`
 	NotBefore      *time.Time       `json:"notBefore,omitempty"`
 	NotAfter       *time.Time       `json:"notAfter,omitempty"`
-	Error          *problem.Problem `json:"error,omitempty"`
-	Authorizations []string         `json:"authorizations"`
+	Error          *problem.Problem `json:"error,omitempty" xorm:"-"`
+	Authorizations []string         `json:"authorizations" xorm:"-"`
 	Finalize       string           `json:"finalize"`
 	Certificate    string           `json:"certificate,omitempty"`
 }
@@ -59,7 +60,7 @@ func (o *Order) CheckOrder() (error, error) {
 
 // CreateAuthz creates authorization and challenges for the order
 // currauthz is the list of found Authorizations for the account
-func (o *Order) CreateAuthz(currauthz []Authorization, authzURL string, challengeURL string) (*[]Authorization, error) {
+func (o *Order) CreateAuthz(currauthz []Authorization, authzURL string, challengeURL string) ([]Authorization, error) {
 	// copy identities of the order
 	ids := make([]Identifier, len(o.Identitifers))
 	copy(ids, o.Identitifers)
@@ -94,27 +95,22 @@ func (o *Order) CreateAuthz(currauthz []Authorization, authzURL string, challeng
 		a.Expires = time.Now().Add(time.Hour * 24 * AuthorizationValidity)
 		a.KeyID = o.KeyID
 		a.Status = "pending"
+		a.ID = utils.ID()
 		// create challenges for each supported challenges
 		challengeTypes := strings.Split(AllowedChallengeTypes, ",")
 		a.Challenges = make([]Challenge, len(challengeTypes))
 		for i, t := range challengeTypes {
-			challenge, err := NewChallenge(challengeURL, t)
+			challenge, err := NewChallenge(challengeURL, t, a.ID)
 			if err != nil {
 				return nil, fmt.Errorf("error creating challenge: %s", err)
 			}
 			a.Challenges[i] = *challenge
 		}
-		/*
-			authjson, err := json.Marshal(a)
-			if err != nil {
-				return nil, fmt.Errorf("couldn't convert %s authz to json: %s", id.String(), err)
-			}*/
-		a.ID = utils.ID()
 		// add to authorizations urls
 		o.Authorizations = append(o.Authorizations, fmt.Sprintf("%s/%s", authzURL, a.ID))
 		newauthzs[i] = a
 	}
-	return &newauthzs, nil
+	return newauthzs, nil
 }
 
 func (o *Order) String() string {

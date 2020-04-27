@@ -46,7 +46,7 @@ func Post(c *gin.Context) {
 	id := strings.Trim(c.Param("id"), "/")
 	if len(id) > 0 {
 		// post as get
-		order, err := store.GetOrder(id)
+		order, err := store.GetOrder(id, fmt.Sprintf("%s/%s", url, ep.AuthzPath))
 		if err != nil {
 			log.Errorf("cannot retrieve order: %s", err)
 			problem.ServerInternal(c)
@@ -55,6 +55,7 @@ func Post(c *gin.Context) {
 		if order != nil {
 			// send the response
 			log.Infof("returning order from id")
+			log.Infof("order: %s", order.String())
 			c.Header("Link", fmt.Sprintf("<%s%s>;rel=\"index\"", url, ep.DirectoryPath))
 			c.JSON(http.StatusOK, order)
 			return
@@ -102,14 +103,17 @@ func Post(c *gin.Context) {
 	order.Expires = &expires
 	rejected, unsupported, err := store.CreateOrder(order, fmt.Sprintf("%s%s", url, ep.AuthzPath), fmt.Sprintf("%s%s", url, ep.ChallengePath), fmt.Sprintf("%s%s", url, ep.CsrPath))
 	if unsupported != nil {
+		log.Errorf("unsupported order: %s", unsupported)
 		problem.UnsupportedIdentifier(c)
 		return
 	}
 	if rejected != nil {
+		log.Errorf("rejected order: %s", rejected)
 		problem.RejectedIdentifier(c)
 		return
 	}
 	if err != nil {
+		log.Errorf("error creating order: %s", err)
 		problem.ServerInternal(c)
 		return
 	}

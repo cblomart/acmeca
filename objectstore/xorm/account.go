@@ -9,7 +9,7 @@ import (
 // GetAccount gets an existing account
 func (s *Store) GetAccount(kid string) (*objects.Account, error) {
 	var account objects.Account
-	ok, err := s.engine.Where("key_id = ?", kid).Get(&account)
+	ok, err := s.engine.Where("keyid = ?", kid).Get(&account)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't retrieve account %s: %s", kid, err)
 	}
@@ -38,7 +38,7 @@ func (s *Store) CreateAccount(account objects.Account) error {
 		return fmt.Errorf("invalid account")
 	}
 	account.Status = "valid"
-	exists, err := s.engine.Where("key_id = ?", account.KeyID).Exist()
+	exists, err := s.engine.Where("keyid = ?", account.KeyID).Exist(&objects.Account{})
 	if err != nil {
 		return fmt.Errorf("error checking for account %s: %s", account.KeyID, err)
 	}
@@ -56,10 +56,10 @@ func (s *Store) UpdateAccount(account objects.Account) (*objects.Account, error)
 	}
 	_, err := s.engine.Update(account, objects.Account{KeyID: account.KeyID})
 	if err != nil {
-		return nil, fmt.Errorf("cannot update accoun %s: %s", account.KeyID, err)
+		return nil, fmt.Errorf("cannot update account %s: %s", account.KeyID, err)
 	}
 	var a objects.Account
-	ok, err := s.engine.Where("key_id = ?", account.KeyID).Get(&a)
+	ok, err := s.engine.Where("keyid = ?", account.KeyID).Get(&a)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't retrieve account %s: %s", account.KeyID, err)
 	}

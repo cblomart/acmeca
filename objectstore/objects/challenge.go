@@ -20,17 +20,18 @@ const (
 
 // Challenge represents a challenge from the provider
 type Challenge struct {
-	ID        string           `json:"-" xorm:"id"`
-	Type      string           `json:"type"`
-	URL       string           `json:"url" xorm:"url"`
-	Status    string           `json:"status"`
-	Validated *time.Time       `json:"validated,omitempty"`
-	Error     *problem.Problem `json:"error,omitempty"`
-	Token     string           `json:"token"`
+	ID            string           `json:"-" xorm:"id pk"`
+	Authorization string           `json:"-" xorm:"index"`
+	Type          string           `json:"type"`
+	URL           string           `json:"url" xorm:"url"`
+	Status        string           `json:"status"`
+	Validated     *time.Time       `json:"validated,omitempty"`
+	Error         *problem.Problem `json:"error,omitempty"`
+	Token         string           `json:"token"`
 }
 
 // NewChallenge creates a new challenge
-func NewChallenge(challengeURL string, challengeType string) (*Challenge, error) {
+func NewChallenge(challengeURL string, challengeType string, authzid string) (*Challenge, error) {
 	// check that type is allowed
 	allowed := false
 	for _, t := range strings.Split(AllowedChallengeTypes, ",") {
@@ -44,8 +45,9 @@ func NewChallenge(challengeURL string, challengeType string) (*Challenge, error)
 	}
 	// create the challenge
 	c := Challenge{
-		Type:   challengeType,
-		Status: "pending",
+		Type:          challengeType,
+		Status:        "pending",
+		Authorization: authzid,
 	}
 	// generate the token
 	b := make([]byte, TokenLength)

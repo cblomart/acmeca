@@ -15,12 +15,13 @@ const (
 
 // Authorization represent an authorization and its challenges
 type Authorization struct {
-	ID         string      `json:"-" xorm:"id"`
-	KeyID      string      `json:"-" xorm:"keyid"`
-	Identifier Identifier  `json:"Identifier"`
-	Status     string      `json:"status"`
-	Expires    time.Time   `json:"expires"`
-	Challenges []Challenge `json:"challenges"`
+	ID           string      `json:"-" xorm:"id pk"`
+	KeyID        string      `json:"-" xorm:"keyid index"`
+	Identifier   Identifier  `json:"Identifier" xorm:"-"`
+	IdentifierID int64       `json:"-" xorm:"identifierid index"`
+	Status       string      `json:"status"`
+	Expires      time.Time   `json:"expires"`
+	Challenges   []Challenge `json:"challenges" xorm:"-"`
 }
 
 func (a *Authorization) String() string {

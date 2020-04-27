@@ -52,7 +52,8 @@ func Post(c *gin.Context) {
 		return
 	}
 	// get order
-	order, err := store.GetOrder(id)
+	url := location.Get(c).String()
+	order, err := store.GetOrder(id, fmt.Sprintf("%s/%s", url, ep.AuthzPath))
 	if err != nil || order == nil {
 		log.Errorf("cannot retrieve order: %s", err)
 		problem.ServerInternal(c)
@@ -174,7 +175,7 @@ func Post(c *gin.Context) {
 	// encoding csr bytes
 	csrtxt := base64.StdEncoding.EncodeToString(csr.Raw)
 	// path to csr to the ca
-	url := fmt.Sprintf("%s%s", caurl, ep.CsrPath)
+	url = fmt.Sprintf("%s%s", caurl, ep.CsrPath)
 	// authentication
 	auth := fmt.Sprintf("Bearer %s", base64.RawURLEncoding.EncodeToString([]byte(capass)))
 	// create the request
