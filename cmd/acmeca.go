@@ -114,6 +114,12 @@ func main() {
 				Usage:   "url to ca",
 				EnvVars: []string{"CASERVER"},
 			},
+			&cli.BoolFlag{
+				Name:    "cron",
+				Value:   true,
+				Usage:   "cron tasks",
+				EnvVars: []string{"ACMECRON"},
+			},
 		},
 	}
 	err := app.Run(os.Args)
