@@ -1,4 +1,4 @@
-FROM amd64/golang:1.14-alpine3.11 AS builder
+FROM golang:1.14-alpine3.11 AS builder
 
 RUN apk add --no-cache gcc musl-dev upx
 
@@ -12,7 +12,7 @@ RUN go build ./cmd/acmeca.go
 
 RUN upx -qq acmeca
 
-FROM amd64/alpine:3.11
+FROM alpine:3.11
 
 COPY --from=builder /app/acmeca /usr/local/bin/acmeca
 
