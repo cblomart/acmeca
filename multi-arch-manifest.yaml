@@ -4,16 +4,16 @@ manifests:
     platform:
       architecture: amd64
       os: linux
-  - image: cblomart/acmeca:arm32v5
-    platform:
-      architecture: arm
-      os: linux
-      variant: v5
-  - image: cblomart/acmeca:arm32v7
-    platform:
-      architecture: arm
-      os: linux
-      variant: v7
+#  - image: cblomart/acmeca:arm32v5
+#    platform:
+#      architecture: arm
+#      os: linux
+#      variant: v5
+#  - image: cblomart/acmeca:arm32v7
+#    platform:
+#      architecture: arm
+#      os: linux
+#      variant: v7
   - image: cblomart/acmeca:arm64v8
     platform:
       architecture: arm64
