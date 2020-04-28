@@ -49,7 +49,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:    "objectstorage",
-				Value:   "memory",
+				Value:   "xorm",
 				Usage:   "Object storage type to use",
 				EnvVars: []string{"OBJECT_STORAGE"},
 			},
@@ -61,7 +61,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:    "certstorage",
-				Value:   "memory",
+				Value:   "file",
 				Usage:   "certificate storage type to use",
 				EnvVars: []string{"CERT_STORAGE"},
 			},
@@ -104,9 +104,10 @@ func main() {
 			&cli.StringFlag{
 				Name:     "secret",
 				Value:    "",
-				Usage:    "secret for communication with ca",
+				Usage:    "secret for communication with ca (picked from /run/secrets/acmesecret)",
 				Required: true,
 				EnvVars:  []string{"SECRET"},
+				FilePath: "/run/secrets/acmesecret",
 			},
 			&cli.StringFlag{
 				Name:    "caurl",
