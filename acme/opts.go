@@ -10,8 +10,14 @@ import (
 // options separator is ",", keyvalue separator is ":"
 func GetOpts(stringopts string) map[string]string {
 	opts := map[string]string{}
+	if len(stringopts) == 0 {
+		return opts
+	}
 	kvGroups := strings.Split(stringopts, ";")
 	for _, opt := range kvGroups {
+		if len(opt) == 0 {
+			continue
+		}
 		kv := strings.Split(opt, "=")
 		if len(kv) != 2 {
 			log.Warnf("unrecognized option: %s", opt)
