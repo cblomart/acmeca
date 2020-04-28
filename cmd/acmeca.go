@@ -105,7 +105,6 @@ func main() {
 				Name:     "secret",
 				Value:    "",
 				Usage:    "secret for communication with ca (picked from /run/secrets/acmesecret)",
-				Required: true,
 				EnvVars:  []string{"SECRET"},
 				FilePath: "/run/secrets/acmesecret",
 			},

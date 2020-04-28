@@ -1,6 +1,8 @@
 package acme
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"os"
 
@@ -85,6 +87,17 @@ func Server(v *cli.Context) error {
 			log.Warnf("using '%s' object storage", v.String("objectstorage"))
 		} else {
 			log.Infof("using '%s' object storage", v.String("objectstorage"))
+		}
+		if len(v.String("secret")) == 0 {
+			log.Warn("secret is not initialized, please provide a secret yourself")
+			key := make([]byte, 32)
+			_, err := rand.Read(key)
+			if err != nil {
+				return fmt.Errorf("could not generate random secret")
+			}
+			secret := base64.RawURLEncoding.EncodeToString(key)
+			log.Warnf("generated secret: %s", secret)
+			v.Set("secret", secret)
 		}
 		caInfo := ca.Info(v.String("caurl"), v.String("secret"))
 		base := r.Group("/")
