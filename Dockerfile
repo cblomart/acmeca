@@ -6,13 +6,13 @@ WORKDIR /app
 
 COPY . .
 
-#RUN go mod download
-
 RUN go build ./cmd/acmeca.go
 
 RUN upx -qq acmeca
 
 FROM alpine:3.11
+
+RUN apk add --no-cache su-exec
 
 COPY --from=builder /app/acmeca /usr/local/bin/acmeca
 
@@ -27,8 +27,12 @@ VOLUME [ "/etc/acmeca", "/var/acmeca" ]
 
 EXPOSE 8443/tcp
 
-USER acmeca
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/acmeca"]
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD ["/usr/local/bin/acmeca"]
 
 

@@ -109,6 +109,29 @@ ACME verifications
 
 > **TODO**: implementing S3 certificate store would allow to loadbalance multiple CA servers
 
+```ascii
+ACME verifications
+<-----------------+  
+                  |
+---+        +-----+-----+           +-----+     +--------+     +------------+
+L  | HTTPS  |           |           |  L  |     |        |     |            |
+O  | ------>+    ACME   +---------->+  O  +---->|   CA   +<--->+            |
+A  |        |           |           |  A  |     |        |     |            |
+D  |        +-----+-----+           |  D  |     +--------+     |            |
+B  |              |                 |  B  |                    |            |
+A  |   mariadb object store (xorm)  |  A  |                    |     S3     |
+L  |   + redis nonce store          |  L  |                    |            |
+A  |              |                 |  A  |                    |            |
+N  |        +-----+-----+           |  N  |     +--------+     |            |
+C  | HTTPS  |           |           |  C  |     |        |     |            |
+E  | ------>+    ACME   +---------->+  E  +---->|   CA   +<--->+            |
+R  |        |           |           |  R  |     |        |     |            |
+---+        +-----+-----+           +-----+     +--------+     +------------+
+                  |                      
+<-----------------+               
+ACME verifications
+```
+
 # backends
 
 ## certificate

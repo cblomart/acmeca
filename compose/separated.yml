@@ -1,0 +1,59 @@
+---
+version: '3.7'
+
+services:
+  acme:
+    image: cblomart/acmeca:1f90852b
+    environment:
+    - DOMAINS=.lan
+    - CASERVER=https://ca:8443/ca
+    ports:
+    - 8443:8443
+    configs:
+    - source: acme_https_cert
+      destination: /etc/acmeca/certs/https.crt
+    secrets:
+    - source: acme_https_key
+      destination: /etc/acmeca/certs/https.pem
+    volumes:
+    - acmecavar:/var/acmeca/
+    - acmecaetc:/etc/acmeca/
+
+  ca:
+    image: cblomart/acmeca:1f90852b
+    environment:
+    - CA
+    - ACME=false
+    configs:
+    - source: acme_https_cert
+      destination: /etc/acmeca/certs/https.crt
+    - source: ca_cert
+      destination: /etc/acmeca/certs/ca.crt
+    secrets:
+    - source: acme_https_key
+      destination: /etc/acmeca/certs/https.pem
+    - source: acme_https_key
+      destination: /etc/acmeca/certs/ca.pem
+    volumes:
+    - acmecavar:/var/acmeca/
+    - acmecaetc:/etc/acmeca/
+    
+volumes:
+  acmecavar:
+    external: true
+  acmecaetc:
+    external: true
+
+configs:
+  acme_https_cert:
+    external: true
+  acme_ca_cert:
+    external: true
+
+secrets:
+  acme_https_key:
+    external: true
+  acme_ca_key:
+    external: true
+  acmesecret:
+    external: true
