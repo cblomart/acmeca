@@ -25,8 +25,6 @@ VOLUME [ "/etc/acmeca", "/var/acmeca" ]
 
 EXPOSE 8443/tcp
 
-USER acmeca
-
 ENTRYPOINT ["/usr/local/bin/acmeca"]
 
 
