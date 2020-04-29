@@ -12,8 +12,6 @@ RUN upx -qq acmeca
 
 FROM alpine:3.11
 
-RUN apk add --no-cache su-exec
-
 COPY --from=builder /app/acmeca /usr/local/bin/acmeca
 
 RUN addgroup -g 1001 -S acmeca && adduser -u 1001 -D -S -G acmeca acmeca
@@ -27,12 +25,8 @@ VOLUME [ "/etc/acmeca", "/var/acmeca" ]
 
 EXPOSE 8443/tcp
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+USER acmeca
 
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-CMD ["/usr/local/bin/acmeca"]
+ENTRYPOINT ["/usr/local/bin/acmeca"]
 
 
