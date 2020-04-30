@@ -5,7 +5,7 @@ services:
   acme:
     image: cblomart/acmeca:1f90852b
     environment:
-    - CA
+    - CA=true
     - SECRET=Sup3rS3cr3t
     - DOMAINS=.lan
     ports:
