@@ -34,3 +34,8 @@ func Get(c *gin.Context) {
 	}
 	c.Status(http.StatusOK)
 }
+
+// CAGet get the health of the CA
+func CAGet(c *gin.Context) {
+	c.Status(http.StatusOK)
+}

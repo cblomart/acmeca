@@ -20,6 +20,7 @@ import (
 	"github.com/cblomart/ACMECA/acme/ep/challenge"
 	"github.com/cblomart/ACMECA/acme/ep/csr"
 	"github.com/cblomart/ACMECA/acme/ep/directory"
+	"github.com/cblomart/ACMECA/acme/ep/health"
 	"github.com/cblomart/ACMECA/acme/ep/nonce"
 	"github.com/cblomart/ACMECA/acme/ep/order"
 	"github.com/cblomart/ACMECA/acme/validator"
@@ -106,6 +107,8 @@ func Server(v *cli.Context) error {
 		base := r.Group("/")
 		base.Use(noncestoremid.Store(ns), objstoremid.Store(os), decodejws.DecodeJWS())
 		{
+			base.GET(ep.HealthPath, health.Get)
+			base.HEAD(ep.HealthPath, health.Get)
 			base.GET(ep.DirectoryPath, directory.Get)
 			base.GET(ep.NoncePath, nonce.Head)
 			base.HEAD(ep.NoncePath, nonce.Head)
@@ -150,6 +153,8 @@ func Server(v *cli.Context) error {
 		caGroup := r.Group("/ca")
 		caGroup.Use(ca.Info(v.String("caurl"), v.String("secret")), certstoremid.Store(cs))
 		{
+			caGroup.GET(ep.HealthPath, health.CAGet)
+			caGroup.HEAD(ep.HealthPath, health.CAGet)
 			caGroup.GET(ep.CertPath+"/:id", cert.Get)
 			caGroup.DELETE(ep.CertPath+"/:id", tokenauth.TokenAuth(), cert.Delete)
 			caGroup.POST(ep.CsrPath, tokenauth.TokenAuth(), ca.Signing(key), csr.CaPost)

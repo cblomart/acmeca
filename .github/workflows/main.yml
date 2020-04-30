@@ -28,3 +28,4 @@ jobs:
         --output "type=image,push=true" \
         --file ./Dockerfile . \
         --tag ${GITHUB_REPOSITORY}:${GITHUB_SHA::8},${GITHUB_REPOSITORY}:edge
+        
