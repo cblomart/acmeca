@@ -23,4 +23,6 @@ const (
 	CrlPath = "/crl"
 	// CertPath is the path to public certificate
 	CertPath = "/cert"
+	// HealthPath path
+	HealthPath = "/health"
 )

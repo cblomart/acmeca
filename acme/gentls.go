@@ -7,14 +7,18 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"math/big"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/cblomart/ACMECA/acme/ep"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -87,12 +91,32 @@ func readKey(keyfile string) (interface{}, error) {
 	return key, nil
 }
 
+func writeKey(file string, key *rsa.PrivateKey) {
+	out := &bytes.Buffer{}
+	// encode key
+	pemBlock, err := pemBlockForKey(key)
+	if err != nil {
+		log.Fatalf("error serializing key: %v", err)
+	}
+	pem.Encode(out, pemBlock)
+	f, err := os.Create(file)
+	if err != nil {
+		log.Fatalf("Could not create key file: %v", err)
+	}
+	_, err = out.WriteTo(f)
+	if err != nil {
+		log.Fatalf("Could not write to key file: %s", err)
+	}
+	f.Close()
+}
+
 func generatetls(httpscert, httpskey, hostnames, parentcert, parentkey string, ca bool) {
 	key, err := rsa.GenerateKey(rand.Reader, keySize)
 	//priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
 		log.Fatal(err)
 	}
+	writeKey(httpskey, key)
 	dnsnames := strings.Split(hostnames, ",")
 	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 8*20))
 	if err != nil {
@@ -152,21 +176,110 @@ func generatetls(httpscert, httpskey, hostnames, parentcert, parentkey string, c
 	if err != nil {
 		log.Fatalf("could not write to certificate file: %s", err)
 	}
-	f.Close()
-	out.Reset()
-	// encode key
-	pemBlock, err := pemBlockForKey(key)
-	if err != nil {
-		log.Fatalf("error serializing key: %v", err)
+	if len(parentcert) == 0 {
+		return
 	}
-	pem.Encode(out, pemBlock)
-	f, err = os.Create(httpskey)
-	if err != nil {
-		log.Fatalf("Could not create key file: %v", err)
-	}
+	// encode ca certificate
+	pem.Encode(out, &pem.Block{Type: "CERTIFICATE", Bytes: parent.Raw})
 	_, err = out.WriteTo(f)
 	if err != nil {
-		log.Fatalf("Could not write to key file: %s", err)
+		log.Fatalf("could not write ca to certificate file: %s", err)
+	}
+	f.Close()
+}
+
+func waitca(caurl string, wait, count int) {
+	client := http.Client{}
+	url := fmt.Sprintf("%s/%s", caurl, ep.HealthPath)
+	for count >= 0 {
+		resp, _ := client.Head(url)
+		if resp.StatusCode == http.StatusOK {
+			return
+		}
+		count = count - 1
+		time.Sleep(time.Duration(wait) * time.Second)
+	}
+}
+
+func requesttls(httpscert, httpskey, hostnames, caurl, secret string) {
+	key, err := rsa.GenerateKey(rand.Reader, keySize)
+	//priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	writeKey(httpskey, key)
+	dnsnames := strings.Split(hostnames, ",")
+	if len(dnsnames) == 0 {
+		log.Fatal("no dns names provided")
+	}
+	subj := pkix.Name{
+		CommonName:   dnsnames[0],
+		Organization: []string{"Acme CA"},
+	}
+	asn1Subj, err := asn1.Marshal(subj.ToRDNSequence())
+	if err != nil {
+		log.Fatal(err)
+	}
+	template := x509.CertificateRequest{
+		RawSubject:         asn1Subj,
+		DNSNames:           dnsnames,
+		SignatureAlgorithm: x509.SHA256WithRSA,
+	}
+	csr, err := x509.CreateCertificateRequest(rand.Reader, &template, key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// wait for CA
+	waitca(caurl, 5, 60)
+	// submit csr to ca
+	// encoding csr bytes
+	csrtxt := base64.StdEncoding.EncodeToString(csr)
+	// path to csr to the ca
+	url := fmt.Sprintf("%s%s", caurl, ep.CsrPath)
+	// authentication
+	auth := fmt.Sprintf("Bearer %s", base64.RawURLEncoding.EncodeToString([]byte(secret)))
+	// create the request
+	req, err := http.NewRequest("POST", url, strings.NewReader(csrtxt))
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Add("Authorization", auth)
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusCreated {
+		log.Fatal("ca server didn't create certificate")
+	}
+	certurl := resp.Header.Get("Location")
+	if len(certurl) == 0 {
+		log.Fatal("ca server created the certificate but no location")
+	}
+	// create the request
+	req, err = http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatalf("Cannot create request: %s", err)
+	}
+	req.Header.Add("Accept", "application/pem-certificate-chain")
+	resp, err = client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("cert request returned: %s", resp.Status)
+	}
+	certchain, err := ioutil.ReadAll(resp.Body)
+	if len(certchain) == 0 {
+		log.Fatal("cert chain returned is empty")
+	}
+	f, err := os.Create(httpscert)
+	if err != nil {
+		log.Fatalf("Could not create cert file: %v", err)
+	}
+	_, err = f.Write(certchain)
+	if err != nil {
+		log.Fatalf("Could not write to cert file: %s", err)
 	}
 	f.Close()
 }

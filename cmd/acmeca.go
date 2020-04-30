@@ -17,6 +17,7 @@ func main() {
 			return acme.Server(c)
 		},
 		Flags: []cli.Flag{
+			// HTTPS certificate will either be requested to ca or generetaed from CA
 			&cli.StringFlag{
 				Name:    "httpscert",
 				Value:   "/etc/acmeca/certs/https.crt",

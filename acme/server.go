@@ -60,12 +60,15 @@ func Server(v *cli.Context) error {
 		generatetls(v.String("cacert"), v.String("cakey"), "", "", "", true)
 	}
 	// check that certificates exists or create them
-	if modeAcme && (!checkFile(v.String("httpscert")) || !checkFile(v.String("httpskey"))) {
+	if !checkFile(v.String("httpscert")) || !checkFile(v.String("httpskey")) {
 		if !modeCA {
-			return fmt.Errorf("when running in acme mode only, please provide https certificates")
+			// request certs from ca
+			log.Infof("Requesting certificate from ca %s", v.String("caurl"))
+			requesttls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("caurl"), v.String("secret"))
+		} else {
+			log.Info("Generating HTTPS certificate")
+			generatetls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("cacert"), v.String("cakey"), false)
 		}
-		log.Info("Generating HTTPS certificate")
-		generatetls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("cacert"), v.String("cakey"), false)
 	}
 	// allowing domains
 	validator.AllowedDomains = v.String("domains")
