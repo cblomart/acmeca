@@ -7,7 +7,7 @@ import (
 	"github.com/cblomart/ACMECA/acme/ep"
 	"github.com/cblomart/ACMECA/middlewares/ca"
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Get gets the health state
