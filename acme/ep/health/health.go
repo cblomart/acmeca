@@ -19,7 +19,7 @@ func Get(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	cahealthurl := fmt.Sprintf("%s/%s", caurl, ep.HealthPath)
+	cahealthurl := fmt.Sprintf("%s%s", caurl, ep.HealthPath)
 	client := http.Client{}
 	resp, err := client.Head(cahealthurl)
 	if err != nil {
@@ -28,7 +28,7 @@ func Get(c *gin.Context) {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Errorf("ca not health: %s", err)
+		log.Errorf("ca not healthy: %d", resp.StatusCode)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
