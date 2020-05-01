@@ -107,8 +107,8 @@ func Server(v *cli.Context) error {
 		base := r.Group("/")
 		base.Use(noncestoremid.Store(ns), objstoremid.Store(os), decodejws.DecodeJWS())
 		{
-			base.GET(ep.HealthPath, health.Get)
-			base.HEAD(ep.HealthPath, health.Get)
+			base.GET(ep.HealthPath, caInfo, health.Get)
+			base.HEAD(ep.HealthPath, caInfo, health.Get)
 			base.GET(ep.DirectoryPath, directory.Get)
 			base.GET(ep.NoncePath, nonce.Head)
 			base.HEAD(ep.NoncePath, nonce.Head)
