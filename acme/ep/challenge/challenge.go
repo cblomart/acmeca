@@ -37,7 +37,7 @@ func Post(c *gin.Context) {
 	}
 	store, err := objectstore.Get(c)
 	if err != nil {
-		log.Errorf("cannot rretrieve store: %s", err)
+		log.Errorf("cannot retrieve store: %s", err)
 		problem.ServerInternal(c)
 		return
 	}

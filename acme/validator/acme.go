@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/cblomart/ACMECA/acme/validator/dns"
+	"github.com/cblomart/ACMECA/acme/validator/tls"
 	log "github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
 )
@@ -45,7 +46,7 @@ func Validate(domain string, validation string, token string, key string) string
 	case "http-01":
 		return "invalid"
 	case "tls-alpn-01":
-		return "invalid"
+		return tls.Validate(domain, authkey)
 	default:
 		return "invalid"
 	}
