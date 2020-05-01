@@ -23,6 +23,8 @@ RUN mkdir -p /etc/acmeca/certs && \
     chown -R acmeca:acmeca /etc/acmeca && \
     chown -R acmeca:acmeca /var/acmeca
 
+RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/acmeca
+
 VOLUME [ "/etc/acmeca", "/var/acmeca" ]
 
 EXPOSE 8443/tcp
