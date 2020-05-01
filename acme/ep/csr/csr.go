@@ -197,21 +197,14 @@ func Post(c *gin.Context) {
 		c.JSON(http.StatusOK, order)
 		return
 	}
-	certurl := resp.Header.Get("Location")
-	if len(certurl) == 0 {
-		log.Errorf("ca server created the certificate but no location")
+	certid := resp.Header.Get("ETag")
+	if len(certid) == 0 {
+		log.Errorf("ca server didn't provide ETag")
 		c.JSON(http.StatusOK, order)
 		return
 	}
-	// check that localtion is well on CA
-	if !strings.HasPrefix(certurl, caurl) {
-		log.Errorf("cert ref returned not in CA: %s", certurl)
-		c.JSON(http.StatusOK, order)
-		return
-	}
-	// update location to set the one of the ACME server
-	certpath := strings.TrimPrefix(certurl, caurl)
-	certurl = fmt.Sprintf("%s%s", location.Get(c).String(), certpath)
+	// set path to cert
+	certurl := fmt.Sprintf("%s%s/%s", location.Get(c).String(), ep.CertPath, certid)
 	// set certificate url in order
 	order.Certificate = certurl
 	// set order as valid
@@ -298,6 +291,7 @@ func CaPost(c *gin.Context) {
 	sign := base64.RawURLEncoding.EncodeToString(hash[:])
 	url := location.Get(c).String()
 	log.Infof("Generated %s cert for %s", sign, crt.Subject.CommonName)
-	c.Header("Location", fmt.Sprintf("%s%s/%s", url, ep.CertPath, sign))
+	c.Header("Location", fmt.Sprintf("%sca/%s/%s", url, ep.CertPath, sign))
+	c.Header("ETag", sign)
 	c.Status(http.StatusCreated)
 }
