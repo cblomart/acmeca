@@ -205,7 +205,7 @@ func Post(c *gin.Context) {
 	}
 	// check that localtion is well on CA
 	if !strings.HasPrefix(certurl, caurl) {
-		log.Errorf("cert ref returned not in CA")
+		log.Errorf("cert ref returned not in CA: %s", certurl)
 		c.JSON(http.StatusOK, order)
 		return
 	}
