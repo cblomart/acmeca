@@ -17,6 +17,13 @@ func main() {
 			return acme.Server(c)
 		},
 		Flags: []cli.Flag{
+			// use http or https
+			&cli.BoolFlag{
+				Name:    "tls",
+				Value:   true,
+				Usage:   "listen to https",
+				EnvVars: []string{"TLS"},
+			},
 			// HTTPS certificate will either be requested to ca or generetaed from CA
 			&cli.StringFlag{
 				Name:    "httpscert",

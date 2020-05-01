@@ -60,15 +60,17 @@ func Server(v *cli.Context) error {
 		log.Info("Generating CA certificate")
 		generatetls(v.String("cacert"), v.String("cakey"), "", "", "", true)
 	}
-	// check that certificates exists or create them
-	if !checkFile(v.String("httpscert")) || !checkFile(v.String("httpskey")) {
-		if !modeCA {
-			// request certs from ca
-			log.Infof("Requesting certificate from ca %s", v.String("caurl"))
-			requesttls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("caurl"), v.String("secret"))
-		} else {
-			log.Info("Generating HTTPS certificate")
-			generatetls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("cacert"), v.String("cakey"), false)
+	if v.Bool("tls") {
+		// check that certificates exists or create them
+		if !checkFile(v.String("httpscert")) || !checkFile(v.String("httpskey")) {
+			if !modeCA {
+				// request certs from ca
+				log.Infof("Requesting certificate from ca %s", v.String("caurl"))
+				requesttls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("caurl"), v.String("secret"))
+			} else {
+				log.Info("Generating HTTPS certificate")
+				generatetls(v.String("httpscert"), v.String("httpskey"), v.String("hostnames"), v.String("cacert"), v.String("cakey"), false)
+			}
 		}
 	}
 	// allowing domains
@@ -160,5 +162,8 @@ func Server(v *cli.Context) error {
 			caGroup.POST(ep.CsrPath, tokenauth.TokenAuth(), ca.Signing(key), csr.CaPost)
 		}
 	}
-	return r.RunTLS(v.String("listen"), v.String("httpscert"), v.String("httpskey"))
+	if v.Bool("tls") {
+		return r.RunTLS(v.String("listen"), v.String("httpscert"), v.String("httpskey"))
+	}
+	return r.Run(v.String("listen"))
 }
