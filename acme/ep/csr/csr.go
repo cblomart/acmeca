@@ -203,6 +203,15 @@ func Post(c *gin.Context) {
 		c.JSON(http.StatusOK, order)
 		return
 	}
+	// check that localtion is well on CA
+	if !strings.HasPrefix(certurl, caurl) {
+		log.Errorf("cert ref returned not in CA")
+		c.JSON(http.StatusOK, order)
+		return
+	}
+	// update location to set the one of the ACME server
+	certpath := strings.TrimPrefix(certurl, caurl)
+	certurl = fmt.Sprintf("%s%s", location.Get(c).String(), certpath)
 	// set certificate url in order
 	order.Certificate = certurl
 	// set order as valid

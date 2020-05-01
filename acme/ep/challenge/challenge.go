@@ -117,7 +117,10 @@ func Post(c *gin.Context) {
 					valid++
 				case "pending":
 					pending++
+				case "invalid":
+					invalid++
 				default:
+					log.Errorf("Authorization in invalid state: %s", orderAuthz.Status)
 					invalid++
 				}
 			}
