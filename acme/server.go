@@ -61,6 +61,7 @@ func Server(v *cli.Context) error {
 		generatetls(v.String("cacert"), v.String("cakey"), "", "", "", true)
 	}
 	if v.Bool("tls") {
+		log.Infof("tls enabled: checking certificates")
 		// check that certificates exists or create them
 		if !checkFile(v.String("httpscert")) || !checkFile(v.String("httpskey")) {
 			if !modeCA {
@@ -163,7 +164,9 @@ func Server(v *cli.Context) error {
 		}
 	}
 	if v.Bool("tls") {
+		log.Infof("starting https server")
 		return r.RunTLS(v.String("listen"), v.String("httpscert"), v.String("httpskey"))
 	}
+	log.Warnf("serving acme in http")
 	return r.Run(v.String("listen"))
 }
