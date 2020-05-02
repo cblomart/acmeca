@@ -13,7 +13,7 @@ steps:
   environment:
     CGO_ENABLED: "0"
   commands:
-  - go build ./cmd/acmeca.go -o release/linux/amd64/acmeca
+  - go build -o release/linux/amd64/acmeca ./cmd/acmeca.go
   - setcap 'cap_net_bind_service=ep' release/linux/amd64/acmeca
   - echo "edge-linux-amd64,${DRONE_COMMIT:0:8}-linux-amd64" | tee .tags
 - name: publish
@@ -42,7 +42,7 @@ steps:
   environment:
     CGO_ENABLED: "0"
   commands:
-  - go build ./cmd/acmeca.go -o release/linux/arm64/acmeca
+  - go build -o release/linux/arm64/acmeca ./cmd/acmeca.go 
   - setcap 'cap_net_bind_service=ep' release/linux/arm64/acmeca
   - echo "edge-linux-arm64,${DRONE_COMMIT:0:8}-linux-arm64" | tee .tags
 - name: publish
@@ -71,7 +71,7 @@ steps:
   environment:
     CGO_ENABLED: "0"
   commands:
-  - go build ./cmd/acmeca.go -o release/linux/arm/acmeca
+  - go build -o release/linux/arm/acmeca ./cmd/acmeca.go 
   - setcap 'cap_net_bind_service=ep' release/linux/arm/acmeca
   - echo "edge-linux-arm,${DRONE_COMMIT:0:8}-linux-arm" | tee .tags
 - name: publish
