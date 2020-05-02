@@ -1,6 +1,7 @@
 ---
 kind: pipeline
-name: linux-amd64
+type: docker
+name: build-linux-amd64
 
 platform:
   os: linux
@@ -14,7 +15,7 @@ steps:
   commands:
   - go build ./cmd/acmeca.go -o release/linux/amd64/acmeca
   - setcap 'cap_net_bind_service=ep' release/linux/amd64/acmeca
-  - echo "edge-linux-amd64,${DRONE_COMMIT::8}-linux-amd64" | tee .tags
+  - echo "edge-linux-amd64,${DRONE_COMMIT:0:8}-linux-amd64" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
@@ -28,7 +29,8 @@ steps:
 
 ---
 kind: pipeline
-name: linux-arm64
+type: docker
+name: build-linux-arm64
 
 platform:
   os: linux
@@ -42,7 +44,7 @@ steps:
   commands:
   - go build ./cmd/acmeca.go -o release/linux/arm64/acmeca
   - setcap 'cap_net_bind_service=ep' release/linux/arm64/acmeca
-  - echo "edge-linux-arm64,${DRONE_COMMIT::8}-linux-arm64" | tee .tags
+  - echo "edge-linux-arm64,${DRONE_COMMIT:0:8}-linux-arm64" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
@@ -56,7 +58,8 @@ steps:
 
 ---
 kind: pipeline
-name: linux-arm
+type: docker
+name: build-linux-arm
 
 platform:
   os: linux
@@ -70,7 +73,7 @@ steps:
   commands:
   - go build ./cmd/acmeca.go -o release/linux/arm/acmeca
   - setcap 'cap_net_bind_service=ep' release/linux/arm/acmeca
-  - echo "edge-linux-arm,${DRONE_COMMIT::8}-linux-arm" | tee .tags
+  - echo "edge-linux-arm,${DRONE_COMMIT:0:8}-linux-arm" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
@@ -84,6 +87,7 @@ steps:
 
 ---
 kind: pipeline
+type: docker
 name: notifications
 
 platform:
@@ -98,14 +102,14 @@ steps:
     password: 
       from-secret: DOCKER_PASSWORD
     ignore_missing: true
-    target: $DRONE_REPO:${DRONE_COMMIT::8}
-    template: $DRONE_REPO:${DRONE_COMMIT::8}-OS-ARCH
+    target: $DRONE_REPO:${DRONE_COMMIT:0:8}
+    template: $DRONE_REPO:${DRONE_COMMIT:0:8}-OS-ARCH
     platforms:
       - linux/amd64
       - linux/arm
       - linux/arm64
 
 depends_on:
-- linux-amd64
-- linux-arm64
-- linux-arm
+- build-linux-amd64
+- build-linux-arm64
+- build-linux-arm
