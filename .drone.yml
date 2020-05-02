@@ -35,6 +35,8 @@ name: build-linux-arm64
 platform:
   os: linux
   arch: arm64
+environment:
+  - CGO=0
 
 steps:
 - name: build
@@ -61,6 +63,9 @@ name: build-linux-arm
 platform:
   os: linux
   arch: arm
+  
+environment:
+  - CGO=0
 
 steps:
 - name: build
