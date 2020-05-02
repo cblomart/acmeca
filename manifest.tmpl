@@ -1,0 +1,26 @@
+image: {{ repo.owner }}/{{ repo.name}}:{{#if build.tag}}{{trimPrefix "v" build.tag}}{{else}}edge{{/if}}
+
+tags:
+{{#each build.tags}}
+  - {{this}}
+{{/each}}
+  - {{ build.commit[0:8] }}
+
+manifests:
+  -
+    image: {{ repo.owner }}/{{ repo.name}}:{{ build.commit[0:8] }}-linux-amd64
+    platform:
+      architecture: amd64
+      os: linux
+  -
+    image: {{ repo.owner }}/{{ repo.name}}:{{ build.commit[0:8] }}-linux-arm64
+    platform:
+      architecture: arm64
+      os: linux
+      variant: v8
+  -
+    image: {{ repo.owner }}/{{ repo.name}}:{{ build.commit[0:8] }}-linux-arm
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
