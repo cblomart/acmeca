@@ -10,17 +10,15 @@ platform:
 steps:
 - name: build
   image: golang:1.14
-  environment:
-    CGO_ENABLED: "0"
   commands:
   - go build -o release/linux/amd64/acmeca ./cmd/acmeca.go
   - setcap 'cap_net_bind_service=ep' release/linux/amd64/acmeca
-  - echo "edge-linux-amd64,${DRONE_COMMIT:0:8}-linux-amd64" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: ${DRONE_REPO}
+    tags: ${DRONE_COMMIT:0:8}-linux-amd64
     dockerfile: docker/Dockerfile.linux.amd64
     username:
       from_secret: DOCKER_USERNAME
@@ -39,17 +37,15 @@ platform:
 steps:
 - name: build
   image: golang:1.14
-  environment:
-    CGO_ENABLED: "0"
   commands:
   - go build -o release/linux/arm64/acmeca ./cmd/acmeca.go 
   - setcap 'cap_net_bind_service=ep' release/linux/arm64/acmeca
-  - echo "edge-linux-arm64,${DRONE_COMMIT:0:8}-linux-arm64" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: ${DRONE_REPO}
+    tags: ${DRONE_COMMIT:0:8}-linux-arm64
     dockerfile: docker/Dockerfile.linux.arm64
     username:
       from_secret: DOCKER_USERNAME
@@ -68,18 +64,16 @@ platform:
 steps:
 - name: build
   image: golang:1.14
-  environment:
-    CGO_ENABLED: "0"
   commands:
   - go build -o release/linux/arm/acmeca ./cmd/acmeca.go 
   - setcap 'cap_net_bind_service=ep' release/linux/arm/acmeca
-  - echo "edge-linux-arm,${DRONE_COMMIT:0:8}-linux-arm" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: ${DRONE_REPO}
     dockerfile: docker/Dockerfile.linux.arm
+    tags: ${DRONE_COMMIT:0:8}-linux-arm
     username:
       from_secret: DOCKER_USERNAME
     password:
@@ -90,17 +84,21 @@ kind: pipeline
 type: docker
 name: notifications
 
+clone:
+  disable: true
+
 platform:
   os: linux
   arch: amd64
+
 steps:
 - name: manifest
   image: plugins/manifest
   settings:
     username: 
-      from-secret: DOCKER_USERNAME
+      from_secret: DOCKER_USERNAME
     password: 
-      from-secret: DOCKER_PASSWORD
+      from_secret: DOCKER_PASSWORD
     ignore_missing: true
     target: ${DRONE_REPO}:${DRONE_COMMIT:0:8}
     template: ${DRONE_REPO}:${DRONE_COMMIT:0:8}-OS-ARCH
@@ -108,6 +106,12 @@ steps:
       - linux/amd64
       - linux/arm
       - linux/arm64
+- name: cleanup docker hub
+  image: cblomart/registry-cleanup
+  settings:
+    password:
+      from_secret: DOCKER_PASSWORD
+    verbose: true
 
 depends_on:
 - build-linux-amd64
