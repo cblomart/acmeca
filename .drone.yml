@@ -101,6 +101,8 @@ steps:
       from_secret: DOCKER_PASSWORD
     ignore_missing: true
     target: ${DRONE_REPO}:${DRONE_COMMIT:0:8}
+    tags:
+    - edge
     template: ${DRONE_REPO}:${DRONE_COMMIT:0:8}-OS-ARCH
     platforms:
       - linux/amd64
@@ -111,6 +113,9 @@ steps:
   settings:
     password:
       from_secret: DOCKER_PASSWORD
+    regex: "^[0-9A-Fa-f]+-linux-.*?$"
+    min: 0
+    max: 0s
     verbose: true
 
 depends_on:
