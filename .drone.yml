@@ -7,21 +7,14 @@ platform:
   os: linux
   arch: amd64
 
-environment:
-  - CGO=0
-
 steps:
-- name: build
-  image: golang:1.14
-  commands:
-  - go build -o release/linux/amd64/acmeca ./cmd/acmeca.go
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: ${DRONE_REPO}
     tags: ${DRONE_COMMIT:0:8}-linux-amd64
-    dockerfile: docker/Dockerfile.linux.amd64
+    dockerfile: Dockerfile
     username:
       from_secret: DOCKER_USERNAME
     password:
@@ -39,17 +32,13 @@ environment:
   - CGO=0
 
 steps:
-- name: build
-  image: golang:1.14
-  commands:
-  - go build -o release/linux/arm64/acmeca ./cmd/acmeca.go 
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: ${DRONE_REPO}
     tags: ${DRONE_COMMIT:0:8}-linux-arm64
-    dockerfile: docker/Dockerfile.linux.arm64
+    dockerfile: Dockerfile
     username:
       from_secret: DOCKER_USERNAME
     password:
@@ -63,21 +52,17 @@ name: build-linux-arm
 platform:
   os: linux
   arch: arm
-  
+
 environment:
   - CGO=0
 
 steps:
-- name: build
-  image: golang:1.14
-  commands:
-  - go build -o release/linux/arm/acmeca ./cmd/acmeca.go 
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: ${DRONE_REPO}
-    dockerfile: docker/Dockerfile.linux.arm
+    dockerfile: Dockerfile
     tags: ${DRONE_COMMIT:0:8}-linux-arm
     username:
       from_secret: DOCKER_USERNAME
