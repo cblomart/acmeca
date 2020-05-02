@@ -14,14 +14,12 @@ steps:
   commands:
   - go build ./cmd/acmeca.go -o release/linux/amd64/acmeca
   - setcap 'cap_net_bind_service=ep' release/linux/amd64/acmeca
+  - echo "edge-linux-amd64,${DRONE_COMMIT::8}-linux-amd64" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: $DRONE_REPO
-    tags: 
-    - edge-linux-arm64
-    - ${DRONE_COMMIT::8}-linux-amd64
     dockerfile: docker/Dockerfile.linux.amd64
     username:
       from_secret: DOCKER_USERNAME
@@ -44,14 +42,12 @@ steps:
   commands:
   - go build ./cmd/acmeca.go -o release/linux/arm64/acmeca
   - setcap 'cap_net_bind_service=ep' release/linux/arm64/acmeca
+  - echo "edge-linux-arm64,${DRONE_COMMIT::8}-linux-arm64" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: $DRONE_REPO
-    tags: 
-    - edge-linux-arm64
-    - ${DRONE_COMMIT::8}-linux-arm64
     dockerfile: docker/Dockerfile.linux.arm64
     username:
       from_secret: DOCKER_USERNAME
@@ -74,14 +70,12 @@ steps:
   commands:
   - go build ./cmd/acmeca.go -o release/linux/arm/acmeca
   - setcap 'cap_net_bind_service=ep' release/linux/arm/acmeca
+  - echo "edge-linux-arm,${DRONE_COMMIT::8}-linux-arm" | tee .tags
 - name: publish
   image: plugins/docker
   settings:
     daemon_off: false
     repo: $DRONE_REPO
-    tags: 
-    - edge-linux-arm
-    - ${DRONE_COMMIT::8}-linux-arm
     dockerfile: docker/Dockerfile.linux.arm
     username:
       from_secret: DOCKER_USERNAME
