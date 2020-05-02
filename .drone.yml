@@ -1,0 +1,15 @@
+kind: pipeline
+type: docker
+name: build
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: build
+  image: golang:1.14
+  environment:
+    CGO_ENABLED: "0"
+  commands:
+  - go build ./cmd/acmeca.go

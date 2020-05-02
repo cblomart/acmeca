@@ -12,7 +12,7 @@ RUN upx -qq acmeca
 
 FROM alpine:3.11
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl setcap
 
 COPY --from=builder /app/acmeca /usr/local/bin/acmeca
 
@@ -23,7 +23,7 @@ RUN mkdir -p /etc/acmeca/certs && \
     chown -R acmeca:acmeca /etc/acmeca && \
     chown -R acmeca:acmeca /var/acmeca
 
-RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/acmeca
+RUN setcap 'cap_net_bind_service=ep' /usr/local/bin/acmeca
 
 VOLUME [ "/etc/acmeca", "/var/acmeca" ]
 
