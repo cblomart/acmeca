@@ -92,7 +92,7 @@ platform:
   arch: amd64
 
 steps:
-- name: manifest
+- name: manifest commit
   image: plugins/manifest
   settings:
     username: 
@@ -100,8 +100,26 @@ steps:
     password: 
       from_secret: DOCKER_PASSWORD
     ignore_missing: true
-    dump: true
-    spec: ./manifest.tmpl
+    target: ${DRONE_REPO}:${DRONE_COMMIT:0:8}
+    template: ${DRONE_REPO}:${DRONE_COMMIT:0:8}-OS-ARCH
+    platforms:
+      - linux/amd64
+      - linux/arm
+      - linux/arm64
+- name: manifest edge
+  image: plugins/manifest
+  settings:
+    username: 
+      from_secret: DOCKER_USERNAME
+    password: 
+      from_secret: DOCKER_PASSWORD
+    ignore_missing: true
+    target: ${DRONE_REPO}:edge
+    template: ${DRONE_REPO}:${DRONE_COMMIT:0:8}-OS-ARCH
+    platforms:
+      - linux/amd64
+      - linux/arm
+      - linux/arm64
 - name: cleanup docker hub
   image: cblomart/registry-cleanup
   settings:
