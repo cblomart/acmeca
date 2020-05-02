@@ -101,7 +101,7 @@ steps:
       from_secret: DOCKER_PASSWORD
     ignore_missing: true
     dump: true
-    spec: manifest.tmpl
+    spec: ./manifest.tmpl
 - name: cleanup docker hub
   image: cblomart/registry-cleanup
   settings:

@@ -1,4 +1,4 @@
-image: {{ repo.owner }}/{{ repo.name}}:{{#if build.tag}}{{trimPrefix "v" build.tag}}{{else}}edge{{/if}}
+image: {{ repo.owner }}/{{ repo.name }}:{{#if build.tag}}{{trimPrefix "v" build.tag}}{{else}}edge{{/if}}
 
 tags:
 {{#each build.tags}}
@@ -7,19 +7,16 @@ tags:
   - {{ build.commit }}
 
 manifests:
-  -
-    image: {{ repo.owner }}/{{ repo.name }}:{{ build.commit }}-linux-amd64
+  - image: {{ repo.owner }}/{{ repo.name }}:{{ build.commit }}-linux-amd64
     platform:
       architecture: amd64
       os: linux
-  -
-    image: {{ repo.owner }}/{{ repo.name }}:{{ build.commit }}-linux-arm64
+  - image: {{ repo.owner }}/{{ repo.name }}:{{ build.commit }}-linux-arm64
     platform:
       architecture: arm64
       os: linux
       variant: v8
-  -
-    image: {{ repo.owner }}/{{ repo.name }}:{{ build.commit }}-linux-arm
+  - image: {{ repo.owner }}/{{ repo.name }}:{{ build.commit }}-linux-arm
     platform:
       architecture: arm
       os: linux
