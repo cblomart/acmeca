@@ -18,7 +18,7 @@ COPY --from=builder /app/acmeca /usr/local/bin/acmeca
 
 RUN apk add --no-cache libcap && \
     setcap 'cap_net_bind_service=ep' /usr/local/bin/acmeca && \
-    apk remove libcap
+    apk del libcap
 
 RUN addgroup -g 1001 -S acmeca && adduser -u 1001 -D -S -G acmeca acmeca
 
