@@ -20,7 +20,7 @@ steps:
   image: plugins/docker
   settings:
     daemon_off: false
-    repo: $DRONE_REPO
+    repo: ${DRONE_REPO}
     dockerfile: docker/Dockerfile.linux.amd64
     username:
       from_secret: DOCKER_USERNAME
@@ -49,7 +49,7 @@ steps:
   image: plugins/docker
   settings:
     daemon_off: false
-    repo: $DRONE_REPO
+    repo: ${DRONE_REPO}
     dockerfile: docker/Dockerfile.linux.arm64
     username:
       from_secret: DOCKER_USERNAME
@@ -78,7 +78,7 @@ steps:
   image: plugins/docker
   settings:
     daemon_off: false
-    repo: $DRONE_REPO
+    repo: ${DRONE_REPO}
     dockerfile: docker/Dockerfile.linux.arm
     username:
       from_secret: DOCKER_USERNAME
