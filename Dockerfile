@@ -1,6 +1,6 @@
 FROM golang:1.14-alpine3.11 AS builder
 
-RUN apk add --no-cache gcc musl-dev upx
+RUN apk add --no-cache gcc musl-dev upx libcap
 
 WORKDIR /app
 
@@ -10,9 +10,11 @@ RUN go build ./cmd/acmeca.go
 
 RUN upx -qq acmeca
 
+RUN setcap 'cap_net_bind_service=ep' /app/acmeca
+
 FROM alpine:3.11
 
-RUN apk add --no-cache curl setcap
+RUN apk add --no-cache curl
 
 COPY --from=builder /app/acmeca /usr/local/bin/acmeca
 
@@ -22,8 +24,6 @@ RUN mkdir -p /etc/acmeca/certs && \
     mkdir -p /var/acmeca/certs && \
     chown -R acmeca:acmeca /etc/acmeca && \
     chown -R acmeca:acmeca /var/acmeca
-
-RUN setcap 'cap_net_bind_service=ep' /usr/local/bin/acmeca
 
 VOLUME [ "/etc/acmeca", "/var/acmeca" ]
 
