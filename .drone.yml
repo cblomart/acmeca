@@ -1,6 +1,36 @@
+---
 kind: pipeline
-type: docker
-name: build
+name: linux-amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  image: golang:1.14
+  environment:
+    CGO_ENABLED: "0"
+  commands:
+  - go build ./cmd/acmeca.go -o release/linux/amd64/acmeca
+  - setcap 'cap_net_bind_service=ep' release/linux/amd64/acmeca
+- name: publish
+  image: plugins/docker
+  settings:
+    daemon_off: false
+    repo: $DRONE_REPO
+    tags: 
+    - edge-linux-arm64
+    - ${DRONE_COMMIT::8}-linux-amd64
+    dockerfile: docker/Dockerfile.linux.amd64
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+
+---
+kind: pipeline
+name: linux-arm64
 
 platform:
   os: linux
@@ -12,4 +42,76 @@ steps:
   environment:
     CGO_ENABLED: "0"
   commands:
-  - go build ./cmd/acmeca.go
+  - go build ./cmd/acmeca.go -o release/linux/arm64/acmeca
+  - setcap 'cap_net_bind_service=ep' release/linux/arm64/acmeca
+- name: publish
+  image: plugins/docker
+  settings:
+    daemon_off: false
+    repo: $DRONE_REPO
+    tags: 
+    - edge-linux-arm64
+    - ${DRONE_COMMIT::8}-linux-arm64
+    dockerfile: docker/Dockerfile.linux.arm64
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+
+---
+kind: pipeline
+name: linux-arm
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+- name: build
+  image: golang:1.14
+  environment:
+    CGO_ENABLED: "0"
+  commands:
+  - go build ./cmd/acmeca.go -o release/linux/arm/acmeca
+  - setcap 'cap_net_bind_service=ep' release/linux/arm/acmeca
+- name: publish
+  image: plugins/docker
+  settings:
+    daemon_off: false
+    repo: $DRONE_REPO
+    tags: 
+    - edge-linux-arm
+    - ${DRONE_COMMIT::8}-linux-arm
+    dockerfile: docker/Dockerfile.linux.arm
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+
+---
+kind: pipeline
+name: notifications
+
+platform:
+  os: linux
+  arch: amd64
+steps:
+- name: manifest
+  image: plugins/manifest
+  settings:
+    username: 
+      from-secret: DOCKER_USERNAME
+    password: 
+      from-secret: DOCKER_PASSWORD
+    ignore_missing: true
+    target: $DRONE_REPO:${DRONE_COMMIT::8}
+    template: $DRONE_REPO:${DRONE_COMMIT::8}-OS-ARCH
+    platforms:
+      - linux/amd64
+      - linux/arm
+      - linux/arm64
+
+depends_on:
+- linux-amd64
+- linux-arm64
+- linux-arm

@@ -1,0 +1,22 @@
+FROM alpine:3.11
+
+RUN apk add --no-cache curl
+
+ADD release/linux/arm64/acmeca /usr/local/bin/acmeca
+
+RUN addgroup -g 1001 -S acmeca && adduser -u 1001 -D -S -G acmeca acmeca
+
+RUN mkdir -p /etc/acmeca/certs && \
+    mkdir -p /var/acmeca/certs && \
+    chown -R acmeca:acmeca /etc/acmeca && \
+    chown -R acmeca:acmeca /var/acmeca
+
+VOLUME [ "/etc/acmeca", "/var/acmeca" ]
+
+EXPOSE 8443/tcp
+
+USER acmeca
+
+ENTRYPOINT ["/usr/local/bin/acmeca"]
+
+
