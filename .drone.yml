@@ -15,7 +15,6 @@ steps:
   image: golang:1.14
   commands:
   - go build -o release/linux/amd64/acmeca ./cmd/acmeca.go
-  - setcap 'cap_net_bind_service=ep' release/linux/amd64/acmeca
 - name: publish
   image: plugins/docker
   settings:
@@ -42,7 +41,6 @@ steps:
   image: golang:1.14
   commands:
   - go build -o release/linux/arm64/acmeca ./cmd/acmeca.go 
-  - setcap 'cap_net_bind_service=ep' release/linux/arm64/acmeca
 - name: publish
   image: plugins/docker
   settings:
@@ -69,7 +67,6 @@ steps:
   image: golang:1.14
   commands:
   - go build -o release/linux/arm/acmeca ./cmd/acmeca.go 
-  - setcap 'cap_net_bind_service=ep' release/linux/arm/acmeca
 - name: publish
   image: plugins/docker
   settings:
