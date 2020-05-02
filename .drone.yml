@@ -7,6 +7,9 @@ platform:
   os: linux
   arch: amd64
 
+environment:
+  CGO=0
+
 steps:
 - name: build
   image: golang:1.14
