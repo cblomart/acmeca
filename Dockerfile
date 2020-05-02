@@ -1,6 +1,6 @@
 FROM golang:1.14-alpine3.11 AS builder
 
-RUN apk add --no-cache gcc musl-dev upx libcap
+RUN apk add --no-cache gcc musl-dev upx
 
 WORKDIR /app
 
@@ -10,13 +10,15 @@ RUN go build ./cmd/acmeca.go
 
 RUN upx -qq acmeca
 
-RUN setcap 'cap_net_bind_service=ep' /app/acmeca
-
 FROM alpine:3.11
 
 RUN apk add --no-cache curl
 
 COPY --from=builder /app/acmeca /usr/local/bin/acmeca
+
+RUN apk add --no-cache libcap && \
+    setcap 'cap_net_bind_service=ep' /usr/local/bin/acmeca && \
+    apk remove libcap
 
 RUN addgroup -g 1001 -S acmeca && adduser -u 1001 -D -S -G acmeca acmeca
 

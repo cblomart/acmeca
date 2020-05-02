@@ -112,7 +112,7 @@ steps:
       from_secret: DOCKER_PASSWORD
     regex: "^[0-9A-Fa-f]+-linux-.*?$"
     min: 3
-    max: 0s
+    max: 1s
     verbose: true
 
 depends_on:
