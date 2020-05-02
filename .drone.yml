@@ -8,7 +8,7 @@ platform:
   arch: amd64
 
 environment:
-  CGO=0
+  - CGO=0
 
 steps:
 - name: build
