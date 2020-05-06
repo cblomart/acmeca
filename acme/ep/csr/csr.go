@@ -266,7 +266,7 @@ func CaPost(c *gin.Context) {
 		Issuer:                rootcert.Subject,
 		Subject:               csr.Subject,
 		DNSNames:              csr.DNSNames,
-		NotBefore:             time.Now(),
+		NotBefore:             time.Now().Add(-1 * time.Hour),
 		NotAfter:              time.Now().Add(ValidityPeriod),
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
